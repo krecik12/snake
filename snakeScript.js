@@ -1,21 +1,21 @@
-let CELL_SIZE = 10;
+let CELL_SIZE = 10; //wielkość pola
 //
-let longtailSnake = 0;
-let snakeGrid = []
+let snakeGrid = [] //na jakich polach jest snake
 //
 let canv = document.getElementById('game');
 let W = canv.width;
 let H = canv.height;
 let ctx = canv.getContext('2d');
 
-let numColumns = W / CELL_SIZE;
-let numRows = H / CELL_SIZE;
+let numColumns = W / CELL_SIZE; //ilość pól w szerokości
+let numRows = H / CELL_SIZE; //ilość pól w wyhsokości
 
 
 
-
+//pole gry 
 let grid = [];
 
+//kolory planszy
 let FREE = 0;
 let HEAD = 1;
 let APPLE = 2;
@@ -29,11 +29,12 @@ let LEFT = 3;
 
 let dir = RIGHT;
 
-let snakeX = 10;
-let snakeY = 10;
+let snakeX = 10; //pozycjia startowa x 10 pole od lewej
+let snakeY = 10; //pozycjia startowa y 10 pole od góry
 
-let randX = ""
-let randY = ""
+let randX = "" //jabółko x
+let randY = "" //jabółko y
+//stwirzenie pola gry
 function fillGrid() {
     for (let i = 0; i < numColumns; i++) {
         grid[i] = [];
@@ -43,6 +44,7 @@ function fillGrid() {
     }
 }
 
+//rysowanie okna gry
 function draw() {
     for (let i = 0; i < numColumns; i++) {
         for (let j = 0; j < numRows; j++) {
@@ -60,57 +62,51 @@ function draw() {
     }
 }
 
-let KEY_W = 119;
-let KEY_A = 97
-let KEY_D = 100;
-let KEY_S = 115;
+let KEY_W = 119; //W
+let KEY_A = 97 //A
+let KEY_D = 100; //D
+let KEY_S = 115; //S
 
+//STEROWANIE WASD
 function setKeyboard() {
     document.onkeypress = function (e) {
 
         if (e.which == KEY_W && dir != DOWN) {
-            console.log("change to UP", e.which);
-            dir = UP;
+            dir = UP; //zmiana kierunku na góre
         }
         if (e.which == KEY_A && dir != RIGHT) {
-            console.log("change to LEFT", e.which);
-            dir = LEFT;
+            dir = LEFT; //zmiana kierunku na lewo
         }
         if (e.which == KEY_D && dir != LEFT) {
-            console.log("change to RIGHT", e.which);
-            dir = RIGHT;
+            dir = RIGHT; //zmiana kierunku na prawo
         }
         if (e.which == KEY_S && dir != UP) {
-            console.log("change to DOWN", e.which);
-            dir = DOWN;
+            dir = DOWN; //zmiana kierunku na dół
         }
     };
 }
 
 
-
+//jabółko pojawienie się 
 function putApple() {
     randX = Math.floor(Math.random() * numColumns);
     randY = Math.floor(Math.random() * numRows);
     grid[randX][randY] = APPLE;
 }
 
-// przede wszystkim jaka jest dlugosc weza?
-// waz zaczyna w pozycji x, y 
-// push(pos)
-let ogonX = []; // wszystkie rzeczy będące ogonem
-let ogonY = [];
-let dlugoscOgona = 0; // na początku snake jest pojedyncza kropka - dlugosc jest 0, obie tablice są pustlet
+
+let ogonX = []; //pozycjia ogona oś x
+let ogonY = []; //pozycjia ogona oś y
+let dlugoscOgona = 0; //długość ogona
+
+//zmiana długosci ogona i jego zamienianie spowrotem
 function updateGrid() {
-    console.log("update", dir, snakeX, snakeY);
     let xDoCzyszczenia = ogonX.shift();
     let yDoCzyszczenia = ogonY.shift();
-    // shift nic nie zwroci gdy tablica jest pusta, wiec musimy najpierw sprawdzic czy nie sa undefined:
+
     if (xDoCzyszczenia && yDoCzyszczenia) {
-        // jesli shift() cos zwrocilo to czyscimy to (ustawiamy na FREE)
         grid[xDoCzyszczenia][yDoCzyszczenia] = FREE;
     }
-    // snakeX i snakeY to jest to gdzie "teraz bylismy"
     switch (dir) {
         case UP:
             snakeY -= 1;
@@ -125,7 +121,6 @@ function updateGrid() {
             snakeX += 1;
             break;
     }
-
     grid[snakeX][snakeY] = HEAD;
     ogonX.push(snakeX);
     ogonY.push(snakeY);
@@ -141,7 +136,10 @@ function sprawdzJablko() {
         ogonY.push(snakeY);
     }
 }
+
 let przerrywnik = false
+
+//kolizjia węża
 function sprawdzianieSnake() {
     for (i = 0; i < ogonX.length - 2; i++) {
         if (snakeX == ogonX[i] && snakeY == ogonY[i]) {
@@ -157,19 +155,16 @@ function sprawdzianieSnake() {
 //gra
 setKeyboard();
 fillGrid();
-
 putApple();
-
 draw();
 
 setInterval(function () {
-    if (snakeX > -1 && snakeY > -1 && snakeX <= 119 && snakeY <= 59 && przerrywnik === false) {
+    if (snakeX >= 0 && snakeY >= 0 && snakeX < numColumns && snakeY < numRows && przerrywnik === false) {
         updateGrid();
         draw();
         sprawdzJablko();
         sprawdzianieSnake();
-    }
-    else {
+    } else {
         stop()
     }
 }, 200);
